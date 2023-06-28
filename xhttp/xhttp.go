@@ -186,6 +186,10 @@ func (c *Client) request(ctx context.Context, method string, address string, pay
 		return nil, xerror.NewError(resp.StatusCode, err.Error())
 	}
 
+	if resp.StatusCode != http.StatusOK && resp.StatusCode <= 400 {
+		return nil, xerror.NewError(resp.StatusCode, string(body))
+	}
+
 	return body, nil
 }
 

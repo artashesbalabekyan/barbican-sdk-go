@@ -41,8 +41,8 @@ func (s *Connection) Create(ctx context.Context, name string, value []byte) erro
 	if err != nil {
 		return err
 	}
-	s.client.HttpPost(ctx, endpoint(s.config.Endpoint, "/v1/secrets"), request, nil)
-	return nil
+	_, err = s.client.HttpPost(ctx, endpoint(s.config.Endpoint, "/v1/secrets"), request, nil)
+	return err
 }
 
 func (s *Connection) GetSecret(ctx context.Context, name string) (*BarbicanSecret, error) {
@@ -108,7 +108,6 @@ func (s *Connection) DeleteSecret(ctx context.Context, name string) error {
 // creates or deletes. Further, it does not provide any
 // ordering guarantees.
 func (s *Connection) ListSecrets(ctx context.Context) (*iterator, error) {
-	var cancel context.CancelCauseFunc
 	ctx, cancel = context.WithCancelCause(ctx)
 	values := make(chan string, 10)
 
