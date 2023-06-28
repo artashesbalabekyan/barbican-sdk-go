@@ -13,7 +13,11 @@ import (
 	"github.com/artashesbalabekyan/barbican-sdk-go/xhttp"
 )
 
-func NewConnection(ctx context.Context, config *xhttp.Config) (*Connection, error) {
+func New(ctx context.Context, config *xhttp.Config) (*Connection, error) {
+	return newConnection(ctx, config)
+}
+
+func newConnection(ctx context.Context, config *xhttp.Config) (*Connection, error) {
 	if config.Endpoint == "" {
 		return nil, errors.New("barican: endpoint is empty")
 	}
