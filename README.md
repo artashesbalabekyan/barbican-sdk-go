@@ -1,4 +1,4 @@
-# The OpenStack Barbican SDK fo Golang
+# The OpenStack Barbican SDK for Golang
 
 ## Usage
 
