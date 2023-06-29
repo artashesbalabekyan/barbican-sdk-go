@@ -107,7 +107,7 @@ func (s *Connection) DeleteSecret(ctx context.Context, name string) error {
 // concurrent changes to the Barbican - i.e.
 // creates or deletes. Further, it does not provide any
 // ordering guarantees.
-func (s *Connection) ListSecrets(ctx context.Context) (*iterator, error) {
+func (s *Connection) ListSecrets(ctx context.Context) (*Iterator, error) {
 	var cancel context.CancelCauseFunc
 	ctx, cancel = context.WithCancelCause(ctx)
 	values := make(chan string, 10)
@@ -149,7 +149,7 @@ func (s *Connection) ListSecrets(ctx context.Context) (*iterator, error) {
 			}
 		}
 	}()
-	return &iterator{
+	return &Iterator{
 		ch:     values,
 		ctx:    ctx,
 		cancel: cancel,
