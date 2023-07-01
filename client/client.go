@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 	"crypto/tls"
-	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"net/url"
@@ -13,13 +13,17 @@ import (
 	"github.com/artashesbalabekyan/barbican-sdk-go/xhttp"
 )
 
+const (
+	errValidatePrefix = "invalid barbican config: %s"
+)
+
 func New(ctx context.Context, config *xhttp.Config) (*Connection, error) {
 	return newConnection(ctx, config)
 }
 
 func newConnection(ctx context.Context, config *xhttp.Config) (*Connection, error) {
-	if config.Endpoint == "" {
-		return nil, errors.New("barican: endpoint is empty")
+	if err := validateConfig(config); err != nil {
+		return nil, err
 	}
 
 	var tlsConfig *tls.Config
@@ -57,4 +61,32 @@ func endpoint(endpoint string, elems ...string) string {
 	endpoint = strings.TrimSpace(endpoint)
 	url, _ := url.JoinPath(endpoint, elems...)
 	return url
+}
+
+func validateConfig(config *xhttp.Config) error {
+	if config == nil {
+		return fmt.Errorf(errValidatePrefix, "config is nil")
+	}
+	if config.Endpoint == "" {
+		return fmt.Errorf(errValidatePrefix, "endpoint is empty")
+	}
+	if config.Login.AuthUrl == "" {
+		return fmt.Errorf(errValidatePrefix, "auth url is empty")
+	}
+	if config.Login.ProjectName == "" {
+		return fmt.Errorf(errValidatePrefix, "project name is empty")
+	}
+	if config.Login.ProjectDomain == "" {
+		return fmt.Errorf(errValidatePrefix, "project domain is empty")
+	}
+	if config.Login.Username == "" {
+		return fmt.Errorf(errValidatePrefix, "username is empty")
+	}
+	if config.Login.UserDomainName == "" {
+		return fmt.Errorf(errValidatePrefix, "user domain name is empty")
+	}
+	if config.Login.Password == "" {
+		return fmt.Errorf(errValidatePrefix, "password is empty")
+	}
+	return nil
 }
