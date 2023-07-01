@@ -17,11 +17,11 @@ const (
 	errValidatePrefix = "invalid barbican config: %s"
 )
 
-func New(ctx context.Context, config *xhttp.Config) (*Connection, error) {
+func New(ctx context.Context, config *xhttp.Config) (Conn, error) {
 	return newConnection(ctx, config)
 }
 
-func newConnection(ctx context.Context, config *xhttp.Config) (*Connection, error) {
+func newConnection(ctx context.Context, config *xhttp.Config) (Conn, error) {
 	if err := validateConfig(config); err != nil {
 		return nil, err
 	}
@@ -50,8 +50,8 @@ func newConnection(ctx context.Context, config *xhttp.Config) (*Connection, erro
 	if err := client.Authenticate(ctx, *config); err != nil {
 		return nil, err
 	}
-	return &Connection{
-		config: *config,
+	return &Client{
+		config: config,
 		client: client,
 	}, nil
 }

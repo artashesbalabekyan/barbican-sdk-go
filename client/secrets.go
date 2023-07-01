@@ -10,10 +10,10 @@ import (
 )
 
 // Create stores the given key in Barbican if and only
-// if no entry with the given name exists.
+// if no entry with the given name existc.
 //
-// If no such entry exists, Create returns ErrKeyExists.
-func (s *Connection) Create(ctx context.Context, name string, value []byte) error {
+// If no such entry exists, Create returns ErrKeyExistc.
+func (c *Client) Create(ctx context.Context, name string, value []byte) error {
 	const (
 		SecretType      = "opaque"
 		ContentType     = "application/octet-stream"
@@ -23,7 +23,7 @@ func (s *Connection) Create(ctx context.Context, name string, value []byte) erro
 		Mode            = "cbc"
 	)
 	// Check if key already exists
-	if err := s.verifyKeyDoesNotExist(ctx, name); err != xerror.ErrKeyExists {
+	if err := c.verifyKeyDoesNotExist(ctx, name); err != xerror.ErrKeyExists {
 		return err
 	}
 
@@ -41,13 +41,13 @@ func (s *Connection) Create(ctx context.Context, name string, value []byte) erro
 	if err != nil {
 		return err
 	}
-	_, err = s.client.HttpPost(ctx, endpoint(s.config.Endpoint, "/v1/secrets"), request, nil)
+	_, err = c.client.HttpPost(ctx, endpoint(c.config.Endpoint, "/v1/secrets"), request, nil)
 	return err
 }
 
-func (s *Connection) GetSecret(ctx context.Context, name string) (*BarbicanSecret, error) {
-	url := endpoint(s.config.Endpoint, "/v1/secrets") + "?name=" + name
-	resp, err := s.client.HttpGet(ctx, url, nil)
+func (c *Client) GetSecret(ctx context.Context, name string) (*BarbicanSecret, error) {
+	url := endpoint(c.config.Endpoint, "/v1/secrets") + "?name=" + name
+	resp, err := c.client.HttpGet(ctx, url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -65,15 +65,15 @@ func (s *Connection) GetSecret(ctx context.Context, name string) (*BarbicanSecre
 	return &response.Secrets[0], nil
 }
 
-func (s *Connection) GetSecretWithPayload(ctx context.Context, name string) (*BarbicanSecretWithPayload, error) {
-	secret, err := s.GetSecret(ctx, name)
+func (c *Client) GetSecretWithPayload(ctx context.Context, name string) (*BarbicanSecretWithPayload, error) {
+	secret, err := c.GetSecret(ctx, name)
 	if err != nil {
 		return nil, err
 	}
 
 	// now we can get the secret payload
 	url := endpoint(secret.SecretRef, "/payload")
-	payload, err := s.client.HttpGet(ctx, url, nil)
+	payload, err := c.client.HttpGet(ctx, url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -88,16 +88,16 @@ func (s *Connection) GetSecretWithPayload(ctx context.Context, name string) (*Ba
 
 // Delete deletes the key associated with the given name
 // from Barbican. It may not return an error if no
-// entry for the given name exists.
-func (s *Connection) DeleteSecret(ctx context.Context, name string) error {
-	secret, err := s.GetSecret(ctx, name)
+// entry for the given name existc.
+func (c *Client) DeleteSecret(ctx context.Context, name string) error {
+	secret, err := c.GetSecret(ctx, name)
 	if err != nil {
 		return err
 	}
 
 	// Now, we can delete the key using its UUID.
 	url := endpoint(secret.SecretRef)
-	_, err = s.client.HttpDelete(ctx, url, nil, nil)
+	_, err = c.client.HttpDelete(ctx, url, nil, nil)
 	return err
 }
 
@@ -105,9 +105,9 @@ func (s *Connection) DeleteSecret(ctx context.Context, name string) error {
 //
 // The returned iterator may or may not reflect any
 // concurrent changes to the Barbican - i.e.
-// creates or deletes. Further, it does not provide any
-// ordering guarantees.
-func (s *Connection) ListSecrets(ctx context.Context) (*Iterator, error) {
+// creates or deletec. Further, it does not provide any
+// ordering guaranteec.
+func (c *Client) ListSecrets(ctx context.Context) (*Iterator, error) {
 	var cancel context.CancelCauseFunc
 	ctx, cancel = context.WithCancelCause(ctx)
 	values := make(chan string, 10)
@@ -118,12 +118,12 @@ func (s *Connection) ListSecrets(ctx context.Context) (*Iterator, error) {
 		var next string
 		const limit = 200 // We limit a listing page to 200. This an arbitrary but reasonable value.
 		for {
-			reqURL := endpoint(s.config.Endpoint, "/v1/secrets") + "?sort=name:asc&limit=" + fmt.Sprint(limit)
+			reqURL := endpoint(c.config.Endpoint, "/v1/secrets") + "?sort=name:asc&limit=" + fmt.Sprint(limit)
 			if next != "" {
 				reqURL = next
 			}
 
-			resp, err := s.client.HttpGet(ctx, reqURL, nil)
+			resp, err := c.client.HttpGet(ctx, reqURL, nil)
 			if err != nil {
 				cancel(fmt.Errorf("barbican: failed to list keys: %v", err))
 			}
@@ -157,8 +157,8 @@ func (s *Connection) ListSecrets(ctx context.Context) (*Iterator, error) {
 }
 
 // Checks if a key already exists or not, if so returns ErrKeyExists
-func (s *Connection) verifyKeyDoesNotExist(ctx context.Context, name string) error {
-	_, err := s.GetSecret(ctx, name)
+func (c *Client) verifyKeyDoesNotExist(ctx context.Context, name string) error {
+	_, err := c.GetSecret(ctx, name)
 	if err != nil {
 		return xerror.ErrKeyExists
 	}

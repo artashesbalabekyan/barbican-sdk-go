@@ -1,10 +1,22 @@
 package client
 
-import "github.com/artashesbalabekyan/barbican-sdk-go/xhttp"
+import (
+	"context"
 
-type Connection struct {
-	config xhttp.Config
+	"github.com/artashesbalabekyan/barbican-sdk-go/xhttp"
+)
+
+type Conn interface {
+	Create(ctx context.Context, name string, value []byte) error
+	GetSecret(ctx context.Context, name string) (*BarbicanSecret, error)
+	GetSecretWithPayload(ctx context.Context, name string) (*BarbicanSecretWithPayload, error)
+	DeleteSecret(ctx context.Context, name string) error
+	ListSecrets(ctx context.Context) (*Iterator, error)
+}
+
+type Client struct {
 	client *xhttp.Client
+	config *xhttp.Config
 }
 
 type SecretCreateRequest struct {

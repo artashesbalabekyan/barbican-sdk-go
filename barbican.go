@@ -7,6 +7,6 @@ import (
 	"github.com/artashesbalabekyan/barbican-sdk-go/xhttp"
 )
 
-func NewConnection(ctx context.Context, config *xhttp.Config) (*client.Connection, error) {
+func NewConnection(ctx context.Context, config *xhttp.Config) (client.Conn, error) {
 	return client.New(ctx, config)
 }
