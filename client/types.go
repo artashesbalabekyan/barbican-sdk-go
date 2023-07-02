@@ -11,7 +11,7 @@ type Conn interface {
 	GetSecret(ctx context.Context, name string) (*BarbicanSecret, error)
 	GetSecretWithPayload(ctx context.Context, name string) (*BarbicanSecretWithPayload, error)
 	DeleteSecret(ctx context.Context, name string) error
-	ListSecrets(ctx context.Context) (*Iterator, error)
+	ListSecrets(ctx context.Context) (Iterator, error)
 }
 
 type Client struct {

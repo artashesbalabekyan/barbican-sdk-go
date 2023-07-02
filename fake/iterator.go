@@ -1,13 +1,8 @@
-package client
+package fake
 
 import "context"
 
-type Iterator interface {
-	Next() (string, bool)
-	Close() error
-}
-
-type ListIterator struct {
+type Iterator struct {
 	ch     <-chan string
 	ctx    context.Context
 	cancel context.CancelCauseFunc
@@ -19,7 +14,7 @@ type ListIterator struct {
 // It returns true if and only if there is a new key
 // available. If there are no more keys or an error
 // has been encountered, Next returns false.
-func (i *ListIterator) Next() (string, bool) {
+func (i *Iterator) Next() (string, bool) {
 	select {
 	case v, ok := <-i.ch:
 		return v, ok
@@ -30,7 +25,7 @@ func (i *ListIterator) Next() (string, bool) {
 
 // Err returns the first error, if any, encountered
 // while iterating over the set of keys.
-func (i *ListIterator) Close() error {
+func (i *Iterator) Close() error {
 	// i.cancel(context.Canceled)
 	return context.Cause(i.ctx)
 }
